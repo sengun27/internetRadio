@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Internet Radio</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <style media="screen">
+
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <h1 v-show="mainpage">Internet Radio</h1>
+            <h1 v-show="!mainpage">Add New List</h1>
+            <div class="btn-group d-flex" role="group" aria-label="...">
+                <button v-show="mainpage" type="button" class="btn btn-outline-primary w-50"
+                    @click.prevent="mainpage = false">add</button>
+                <button v-show="!mainpage" type="button" class="btn btn-outline-success w-50"
+                    @click.prevent="getAllUrls">Home</button>
+                <button type="button" class="btn btn-outline-danger w-50" @click.prevent="stopRadio">stop</button>
+            </div>
+            <div class="table-responsive">
+                <table v-show="mainpage" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>#name</th>
+                            <th>#url</th>
+                            <th>#desciption</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in items">
+                            <td>
+                                <button type="button" class="btn btn-default btn-lg"
+                                    @click.prevent="palyRadio(item.url)">
+                                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Play
+                                </button>
+                            </td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.url }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>
+                                <button class="btn btn-outline-danger"
+                                    @click="deleteUrl(item._id,item.name)">delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div v-show="!mainpage">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <form>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-xs-2">name</label>
+                                    <div class="col-xs-5">
+                                        <input :class="{'is-invalid' : hasNameError}" type="text" name="name"
+                                            v-model="name" class="form-control">
+                                        <div class="invalid-feedback">
+                                            空白になっています。
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label class="control-label col-xs-2">URL</label>
+                                    <div class="col-xs-5">
+                                        <input :class="{'is-invalid': hasUrlError}" type="text" name="password"
+                                            v-model="url" class="form-control" placeholder="http://">
+                                        <div class="invalid-feedback">
+                                            httpやhttpsなどで始まるURLを入力してください。
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-group">
+                                <label class="control-label col-xs-2">description</label>
+                                <div class="col-xs-5">
+                                    <input type="text" name="password" v-model="description" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group text-center">
+                                <div class="col-xs-offset-2 col-xs-10">
+                                    <button type="submit" class="btn btn-primary" @click.prevent="checkForm">登録</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            mainpage: true,
+            items: [],
+            name: null,
+            url: null,
+            description: null,
+            hasNameError: false,
+            hasUrlError: false,
+            created: null,
+        },
+        created() {
+            this.getAllUrls();
+        },
+        methods: {
+            resetError: function () {
+                this.hasNameError = false;
+                this.hasUrlError = false;
+            },
+            getAllUrls: function () {
+                this.mainpage = true;
+                this.resetError();
+                axios.get('/api').then(res => {
+                    this.items = res.data;
+                });
+            },
+            createUrl: function () {
+                axios.post('/api/new', {
+                    name: this.name,
+                    url: this.url,
+                    description: this.description
+                }, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                }).then(() => {
+                    this.getAllUrls();
+                }).catch(err => {
+                    console.log(err);
+                })
+            },
+            deleteUrl: function (id, name) {
+                if (confirm(name + ' を削除してもよろしいですか'))
+                    axios.delete('/api/' + id)
+                        .then(() => {
+                            console.log("deleted");
+                            this.getAllUrls();
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+            },
+            stopRadio: function () {
+                axios.get('/stop').then(() => {
+                    console.log("stopped");
+                });
+            },
+            palyRadio: function (url) {
+                axios.get('/play?url=' + url).then(() => {
+                    console.log("played");
+                });
+            },
+            checkForm: function () {
+                this.resetError();
+                if (!this.name) {
+                    this.hasNameError = true
+                }
+                if (!this.url || !this.url.match(/^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)$/)) {
+                    this.hasUrlError = true
+                }
+                if (!this.hasNameError && !this.hasUrlError) {
+                    this.createUrl();
+                }
+            },
+        }
+    })
+
+    function copyToclickboard() {
+        var text = document.getElementById("copy").innerText
+        var area = document.createElement("textarea");
+        area.textContent = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        document.body.removeChild(area);
+    }
+
+</script>
+
+<style scoped>
+    h1 {
+        text-align: center;
+        margin: 30px auto;
+    }
+
+    .btn-group {
+        margin: 20px auto;
+    }
+</style>
