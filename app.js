@@ -56,11 +56,6 @@ app.use((req,res,next)=>{
     res.render('err404',{path: req.path});
 });
 
-app.use((req,res,next)=>{
-    res.status(404)
-    res.render('err404',{path: req.path});
-});
-
 //サーバ起動
 app.listen(port);
 console.log('listen on port ' + port);
