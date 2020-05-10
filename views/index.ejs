@@ -13,6 +13,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.13.0/js/all.js"></script>
     <style media="screen">
 
     </style>
@@ -46,12 +47,12 @@
                             <td>
                                 <button type="button" class="btn btn-default btn-lg"
                                     @click.prevent="palyRadio(item.url)">
-                                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Play
+                                    <i class="fas fa-play-circle" aria-hidden="true"></i>Play
                                 </button>
                             </td>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.url }}</td>
-                            <td>{{ item.description }}</td>
+                            <td class="align-middle">{{ item.name }}</td>
+                            <td class="align-middle">{{ item.url }}</td>
+                            <td class="align-middle">{{ item.description }}</td>
                             <td>
                                 <button class="btn btn-outline-danger"
                                     @click="deleteUrl(item._id,item.name)">delete</button>

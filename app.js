@@ -27,14 +27,12 @@ app.get('/', (req, res) => {
 })
 
 app.get('/stop', (req, res) => {
-    console.log("stopped");
     const exec = require('child_process').exec;
     exec('killall mplayer');
     res.status(200).send()
 });
 
 app.get('/play', (req, res) => {
-    console.log(req.query);
     if (req.query.url) {
         const exec = require('child_process').exec;
         exec('killall mplayer', () => {
