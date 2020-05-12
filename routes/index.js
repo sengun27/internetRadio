@@ -2,11 +2,6 @@ var express = require('express');
 var router = express.Router();
 var RadioModel = require('../models/radioModel.js');
 
-function stopRadio() {
-    const exec = require('child_process').exec;
-    exec('kill ')
-}
-
 //全てのurlを取得
 router.get('/', function (req, res) {
     RadioModel.find({}, function (err, data) {
